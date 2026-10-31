@@ -22,7 +22,7 @@
 <body class="bg-[#121212] text-white min-h-screen flex flex-col">
 
     <!-- نافذة اختيار الفرع -->
-    <div id="branchModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div id="branchModal" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
         <div class="bg-[#1e1e1e] border-2 theme-border rounded-2xl max-w-md w-full p-6 text-center shadow-2xl">
             <h2 class="text-2xl font-black theme-accent mb-2">شركة شاورمات</h2>
             <p class="text-gray-300 mb-6 text-sm">يرجى اختيار الفرع الأقرب إليك للبدء:</p>
@@ -38,13 +38,12 @@
     </div>
 
     <!-- الشريط العلوي الرئيسي -->
-    <header class="bg-[#1a1a1a] border-b border-gray-800 fixed top-0 left-0 right-0 z-30 shadow-md">
+    <header class="bg-[#1a1a1a] border-b border-gray-800 fixed top-0 left-0 right-0 z-40 shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="text-center md:text-right">
                 <h1 class="text-xl font-black theme-accent tracking-wider">shawarmat.co</h1>
                 <span id="currentBranchDisplay" class="text-xs bg-red-950 text-red-300 px-2 py-0.5 rounded-full border border-red-800/50">الفرع: لم يتم التحديد</span>
             </div>
-            <!-- زر السلة يعمل الآن كـ تبديل (فتح/إغلاق) -->
             <button onclick="toggleCart()" class="relative theme-bg hover:opacity-90 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition shadow">
                 <i class="fa-solid fa-cart-shopping"></i> السلة
                 <span id="cartCount" class="absolute -top-2 -right-2 neon-badge text-xs w-6 h-6 rounded-full flex items-center justify-center font-black shadow">0</span>
@@ -75,12 +74,28 @@
         <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </main>
 
-    <!-- نافذة السلة وبيانات العميل (أعلى طبقة z-index: 9999 لضمان عدم ظهور أي شيء تحتها أو فوقها) -->
-    <div id="cartModal" class="fixed inset-0 z-[9999] bg-black/80 hidden flex justify-end">
+    <!-- قسم الملاحظات ومسببات الحساسية (مطابق للمنيو الأصلي) -->
+    <section class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-800 mt-8">
+        <div class="bg-[#1a1a1a] p-5 rounded-2xl border border-gray-800 shadow-lg">
+            <h4 class="text-red-500 font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> ملاحظة:</h4>
+            <p class="text-gray-300 text-sm leading-relaxed">يحتاج البالغون الى 2000 سعرات حرارية في المتوسط وقد تختلف الاحتياجات الفردية من شخص الى آخر[cite: 9].</p>
+        </div>
+        <div class="bg-[#1a1a1a] p-5 rounded-2xl border border-gray-800 shadow-lg">
+            <h4 class="text-red-500 font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-allergies"></i> مسببات الحساسية:</h4>
+            <p class="text-gray-300 text-sm leading-relaxed">القمح، الشعير، الشوفان، الأسماك، منتجات الاسماك، المكسرات، منتجاتها، الحليب ومنتجاته، البيض ومنتجاتها، بذور السمسم ومنتجاته، الطماطم[cite: 9].</p>
+        </div>
+    </section>
+
+    <!-- حقوق الطبع والنشر -->
+    <footer class="bg-[#161616] border-t border-gray-800 py-6 text-center text-sm text-gray-400">
+        <p>© 2026 شركة شاورمات (shawarmat.co). جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <!-- نافذة السلة وبيانات العميل (معزولة تماماً في الأعلى z-index: 99999) -->
+    <div id="cartModal" class="fixed inset-0 z-[99999] bg-black/90 hidden flex justify-end">
         <div class="bg-[#1a1a1a] w-full max-w-md h-full flex flex-col shadow-2xl border-r border-gray-800 overflow-y-auto">
-            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222] sticky top-0 z-10">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222] sticky top-0 z-20">
                 <h3 class="text-lg font-bold theme-accent"><i class="fa-solid fa-basket-shopping"></i> سلة الطلبات وبيانات العميل</h3>
-                <!-- زر إغلاق (X) واضح جداً -->
                 <button onclick="closeCart()" class="bg-red-600 hover:bg-red-700 text-white w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold transition shadow">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -117,7 +132,7 @@
                 </div>
             </div>
 
-            <div class="p-4 border-t border-gray-800 bg-[#222] sticky bottom-0">
+            <div class="p-4 border-t border-gray-800 bg-[#222] sticky bottom-0 z-20">
                 <div class="flex justify-between text-sm mb-2 text-gray-300">
                     <span>مجموع المنتجات:</span>
                     <span id="productsTotal">0 ريال</span>
@@ -317,7 +332,6 @@
             updateCartUI();
         }
 
-        // دالة تبديل السلة (فتح وإغلاق بنقرة واحدة)
         function toggleCart() {
             const modal = document.getElementById('cartModal');
             if (modal.classList.contains('hidden')) {
