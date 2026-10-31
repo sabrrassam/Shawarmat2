@@ -37,14 +37,15 @@
         </div>
     </div>
 
-    <!-- الشريط العلوي الرئيسي مع رفع طبقة z-index لمنع تداخل المنتجات تحته -->
-    <header class="bg-[#1a1a1a] border-b border-gray-800 fixed top-0 left-0 right-0 z-50 shadow-md">
+    <!-- الشريط العلوي الرئيسي -->
+    <header class="bg-[#1a1a1a] border-b border-gray-800 fixed top-0 left-0 right-0 z-30 shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="text-center md:text-right">
                 <h1 class="text-xl font-black theme-accent tracking-wider">shawarmat.co</h1>
                 <span id="currentBranchDisplay" class="text-xs bg-red-950 text-red-300 px-2 py-0.5 rounded-full border border-red-800/50">الفرع: لم يتم التحديد</span>
             </div>
-            <button onclick="openCart()" class="relative theme-bg hover:opacity-90 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition shadow">
+            <!-- زر السلة يعمل الآن كـ تبديل (فتح/إغلاق) -->
+            <button onclick="toggleCart()" class="relative theme-bg hover:opacity-90 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition shadow">
                 <i class="fa-solid fa-cart-shopping"></i> السلة
                 <span id="cartCount" class="absolute -top-2 -right-2 neon-badge text-xs w-6 h-6 rounded-full flex items-center justify-center font-black shadow">0</span>
             </button>
@@ -69,17 +70,20 @@
         </div>
     </header>
 
-    <!-- محتوى المنيو مع مسافة علوية (padding-top) لمنع اختفاء أول المنتجات تحت الهيدر الثابت -->
+    <!-- محتوى المنيو -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full pt-[130px]">
         <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </main>
 
-    <!-- نافذة السلة وبيانات العميل -->
-    <div id="cartModal" class="fixed inset-0 z-55 bg-black/80 hidden flex justify-end">
+    <!-- نافذة السلة وبيانات العميل (أعلى طبقة z-index: 9999 لضمان عدم ظهور أي شيء تحتها أو فوقها) -->
+    <div id="cartModal" class="fixed inset-0 z-[9999] bg-black/80 hidden flex justify-end">
         <div class="bg-[#1a1a1a] w-full max-w-md h-full flex flex-col shadow-2xl border-r border-gray-800 overflow-y-auto">
             <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222] sticky top-0 z-10">
                 <h3 class="text-lg font-bold theme-accent"><i class="fa-solid fa-basket-shopping"></i> سلة الطلبات وبيانات العميل</h3>
-                <button onclick="closeCart()" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+                <!-- زر إغلاق (X) واضح جداً -->
+                <button onclick="closeCart()" class="bg-red-600 hover:bg-red-700 text-white w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold transition shadow">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
             
             <div class="p-4 space-y-4 flex-grow">
@@ -181,7 +185,7 @@
             const filtered = currentFilter === 'all' ? products : products.filter(p => p.category === currentFilter);
             
             grid.innerHTML = filtered.map(p => `
-                <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between relative z-10">
+                <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between">
                     <div>
                         <div class="relative h-48 bg-gray-900 flex items-center justify-center p-2">
                             <img src="${encodeURI(p.img)}" alt="${p.name}" class="max-h-full max-w-full object-contain rounded-lg" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=${encodeURIComponent(p.name)}';">
@@ -313,8 +317,19 @@
             updateCartUI();
         }
 
-        function openCart() { document.getElementById('cartModal').classList.remove('hidden'); }
-        function closeCart() { document.getElementById('cartModal').classList.add('hidden'); }
+        // دالة تبديل السلة (فتح وإغلاق بنقرة واحدة)
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function closeCart() { 
+            document.getElementById('cartModal').classList.add('hidden'); 
+        }
 
         function sendToWhatsApp() {
             if (cart.length === 0) { alert("السلة فارغة."); return; }
