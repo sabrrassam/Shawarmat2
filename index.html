@@ -37,8 +37,8 @@
         </div>
     </div>
 
-    <!-- الشريط العلوي الرئيسي -->
-    <header class="bg-[#1a1a1a] border-b border-gray-800 sticky top-0 z-45 shadow-md">
+    <!-- الشريط العلوي الرئيسي مع رفع طبقة z-index لمنع تداخل المنتجات تحته -->
+    <header class="bg-[#1a1a1a] border-b border-gray-800 fixed top-0 left-0 right-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="text-center md:text-right">
                 <h1 class="text-xl font-black theme-accent tracking-wider">shawarmat.co</h1>
@@ -51,7 +51,7 @@
         </div>
 
         <!-- شريط الأقسام الدائري الثابت -->
-        <div class="bg-[#161616] border-t border-gray-800 py-2.5 px-4 sticky top-[57px] z-40 backdrop-blur-md bg-opacity-95">
+        <div class="bg-[#161616] border-t border-gray-800 py-2.5 px-4 backdrop-blur-md bg-opacity-95">
             <div class="max-w-7xl mx-auto flex gap-3 overflow-x-auto no-scrollbar justify-start md:justify-center">
                 <button onclick="filterCategory('all', this)" class="category-btn flex flex-col items-center flex-shrink-0 theme-bg text-white px-4 py-1.5 rounded-full text-xs font-bold transition shadow">
                     <i class="fa-solid fa-border-all mb-0.5"></i> الكل
@@ -69,13 +69,13 @@
         </div>
     </header>
 
-    <!-- محتوى المنيو -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+    <!-- محتوى المنيو مع مسافة علوية (padding-top) لمنع اختفاء أول المنتجات تحت الهيدر الثابت -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full pt-[130px]">
         <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </main>
 
     <!-- نافذة السلة وبيانات العميل -->
-    <div id="cartModal" class="fixed inset-0 z-50 bg-black/80 hidden flex justify-end">
+    <div id="cartModal" class="fixed inset-0 z-55 bg-black/80 hidden flex justify-end">
         <div class="bg-[#1a1a1a] w-full max-w-md h-full flex flex-col shadow-2xl border-r border-gray-800 overflow-y-auto">
             <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222] sticky top-0 z-10">
                 <h3 class="text-lg font-bold theme-accent"><i class="fa-solid fa-basket-shopping"></i> سلة الطلبات وبيانات العميل</h3>
@@ -134,58 +134,22 @@
     </div>
 
     <script>
-        /* 
-          =================================================================
-          مكان تعديل مسارات وصيغ الصور (تستطيع تغيير .jpg إلى .jpeg بكل سهولة):
-          =================================================================
-        */
         const products = [
-            // 1. باشكا ايطالي
             { id: 1, name: "باشكا ايطالي", category: "meals", type: "food", calories: "750 / 900", img: "img/باشكا ايطالي.jpeg", priceNoCheese: 18, priceCheese: 20 },
-            
-            // 2. شاورما وسط
             { id: 2, name: "شاورما وسط", category: "meals", type: "food", calories: "360 / 460", img: "img/شاورما وسط.jpeg", priceNoCheese: 6, priceCheese: 7 },
-            
-            // 3. شاورما جامبو
             { id: 3, name: "شاورما جامبو", category: "meals", type: "food", calories: "700 / 800", img: "img/شاورما جامبو.jpeg", priceNoCheese: 9, priceCheese: 10 },
-            
-            // 4. شاورما كبير
             { id: 4, name: "شاورما كبير", category: "meals", type: "food", calories: "520 / 620", img: "img/شاورما كبير.jpeg", priceNoCheese: 9, priceCheese: 10 },
-            
-            // 5. عربي وسط
             { id: 5, name: "عربي وسط", category: "meals", type: "food", calories: "780 / 900", img: "img/عربي وسط.jpeg", priceNoCheese: 14, priceCheese: 16 },
-            
-            // 6. عربي كبير
             { id: 6, name: "عربي كبير", category: "meals", type: "food", calories: "1000 / 1150", img: "img/عربي كبير.jpeg", priceNoCheese: 18, priceCheese: 20 },
-            
-            // 7. بطاطس صغير
             { id: 7, name: "بطاطس صغير", category: "fries", type: "food", calories: "280 / 380", img: "img/بطاطس صغير.jpeg", priceNoCheese: 5, priceCheese: 8 },
-            
-            // 8. صحن بطاطس كبير
             { id: 8, name: "صحن بطاطس كبير", category: "fries", type: "food", calories: "550 / 750", img: "img/صحن بطاطس كبير.jpeg", priceNoCheese: 8, priceCheese: 11 },
-            
-            // 9. كولا
             { id: 9, name: "كولا", category: "drinks", type: "drink", calories: "-", img: "img/كولا.jpeg", price: 3 },
-            
-            // 10. كولا دايت
             { id: 10, name: "كولا دايت", category: "drinks", type: "drink", calories: "-", img: "img/كولا دايت.jpeg", price: 3 },
-            
-            // 11. كولا بلاستيك
             { id: 11, name: "كولا بلاستيك", category: "drinks", type: "drink", calories: "-", img: "img/كولا بلاستيك.jpeg", price: 3 },
-            
-            // 12. كولا قزاز
             { id: 12, name: "كولا قزاز", category: "drinks", type: "drink", calories: "-", img: "img/كولا قزاز.jpeg", price: 2.5 },
-            
-            // 13. سبرايت
             { id: 13, name: "سبرايت", category: "drinks", type: "drink", calories: "-", img: "img/سبرايت.jpeg", price: 3 },
-            
-            // 14. فانتا برتقال
             { id: 14, name: "فانتا برتقال", category: "drinks", type: "drink", calories: "-", img: "img/فانتا برتقال.jpeg", price: 3 },
-            
-            // 15. حمضيات
             { id: 15, name: "حمضيات", category: "drinks", type: "drink", calories: "-", img: "img/حمضيات.jpeg", price: 3 },
-            
-            // 16. فانتا فراولة
             { id: 16, name: "فانتا فراولة", category: "drinks", type: "drink", calories: "-", img: "img/فانتا فراولة.jpeg", price: 3 }
         ];
 
@@ -217,7 +181,7 @@
             const filtered = currentFilter === 'all' ? products : products.filter(p => p.category === currentFilter);
             
             grid.innerHTML = filtered.map(p => `
-                <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between">
+                <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between relative z-10">
                     <div>
                         <div class="relative h-48 bg-gray-900 flex items-center justify-center p-2">
                             <img src="${encodeURI(p.img)}" alt="${p.name}" class="max-h-full max-w-full object-contain rounded-lg" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=${encodeURIComponent(p.name)}';">
