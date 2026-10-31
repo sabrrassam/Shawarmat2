@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شركة شاورمات - shawarmat.co</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #121212; color: #fff; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .theme-accent { color: #E34234; }
+        .theme-bg { background-color: #E34234; }
+        .theme-border { border-color: #E34234; }
+        .neon-badge { background-color: #D4FF3F; color: #121212; }
+        .lavender-text { color: #CBB3E8; }
+        input[type="radio"] { accent-color: #E34234; width: 18px; height: 18px; cursor: pointer; }
+    </style>
+</head>
+<body class="bg-[#121212] text-white min-h-screen flex flex-col">
+
+    <!-- نافذة اختيار الفرع -->
+    <div id="branchModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-[#1e1e1e] border-2 theme-border rounded-2xl max-w-md w-full p-6 text-center shadow-2xl">
+            <h2 class="text-2xl font-black theme-accent mb-2">شركة شاورمات</h2>
+            <p class="text-gray-300 mb-6 text-sm">يرجى اختيار الفرع الأقرب إليك للبدء:</p>
+            <div class="space-y-4">
+                <button onclick="selectBranch('مجمع ريدان الأول', '+966550699586')" class="w-full theme-bg hover:opacity-90 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-2 text-lg">
+                    <i class="fa-solid fa-store"></i> فرع مجمع ريدان الأول (القنفذة)
+                </button>
+                <button onclick="selectBranch('مجمع الرفاعي الثاني', '+966550701985')" class="w-full bg-[#2a2a2a] hover:bg-[#333] border border-gray-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-2 text-lg">
+                    <i class="fa-solid fa-store"></i> فرع مجمع الرفاعي الثاني (القنفذة)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- الشريط العلوي الرئيسي -->
+    <header class="bg-[#1a1a1a] border-b border-gray-800 sticky top-0 z-45 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="text-center md:text-right">
+                <h1 class="text-xl font-black theme-accent tracking-wider">shawarmat.co</h1>
+                <span id="currentBranchDisplay" class="text-xs bg-red-950 text-red-300 px-2 py-0.5 rounded-full border border-red-800/50">الفرع: لم يتم التحديد</span>
+            </div>
+            <button onclick="openCart()" class="relative theme-bg hover:opacity-90 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition shadow">
+                <i class="fa-solid fa-cart-shopping"></i> السلة
+                <span id="cartCount" class="absolute -top-2 -right-2 neon-badge text-xs w-6 h-6 rounded-full flex items-center justify-center font-black shadow">0</span>
+            </button>
+        </div>
+
+        <!-- شريط الأقسام الدائري الثابت -->
+        <div class="bg-[#161616] border-t border-gray-800 py-2.5 px-4 sticky top-[57px] z-40 backdrop-blur-md bg-opacity-95">
+            <div class="max-w-7xl mx-auto flex gap-3 overflow-x-auto no-scrollbar justify-start md:justify-center">
+                <button onclick="filterCategory('all', this)" class="category-btn flex flex-col items-center flex-shrink-0 theme-bg text-white px-4 py-1.5 rounded-full text-xs font-bold transition shadow">
+                    <i class="fa-solid fa-border-all mb-0.5"></i> الكل
+                </button>
+                <button onclick="filterCategory('meals', this)" class="category-btn flex flex-col items-center flex-shrink-0 bg-[#242424] text-gray-300 hover:text-white px-4 py-1.5 rounded-full text-xs font-bold transition">
+                    <i class="fa-solid fa-utensils mb-0.5"></i> الوجبات والشاورما
+                </button>
+                <button onclick="filterCategory('fries', this)" class="category-btn flex flex-col items-center flex-shrink-0 bg-[#242424] text-gray-300 hover:text-white px-4 py-1.5 rounded-full text-xs font-bold transition">
+                    <i class="fa-solid fa-bowl-food mb-0.5"></i> البطاطس
+                </button>
+                <button onclick="filterCategory('drinks', this)" class="category-btn flex flex-col items-center flex-shrink-0 bg-[#242424] text-gray-300 hover:text-white px-4 py-1.5 rounded-full text-xs font-bold transition">
+                    <i class="fa-solid fa-cup-straw mb-0.5"></i> المشروبات
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- محتوى المنيو -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </main>
+
+    <!-- نافذة السلة وبيانات العميل -->
+    <div id="cartModal" class="fixed inset-0 z-50 bg-black/80 hidden flex justify-end">
+        <div class="bg-[#1a1a1a] w-full max-w-md h-full flex flex-col shadow-2xl border-r border-gray-800 overflow-y-auto">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222] sticky top-0 z-10">
+                <h3 class="text-lg font-bold theme-accent"><i class="fa-solid fa-basket-shopping"></i> سلة الطلبات وبيانات العميل</h3>
+                <button onclick="closeCart()" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="p-4 space-y-4 flex-grow">
+                <div class="bg-[#242424] p-4 rounded-xl space-y-3 border border-gray-700">
+                    <h4 class="text-sm font-bold lavender-text"><i class="fa-solid fa-user"></i> معلومات العميل والوصول</h4>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">اسم العميل:</label>
+                        <input type="text" id="clientName" placeholder="أدخل اسمك الكريم" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">رقم الجوال:</label>
+                        <input type="tel" id="clientPhone" placeholder="05xxxxxxxx" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">العنوان بالتفصيل:</label>
+                        <input type="text" id="clientAddress" placeholder="الحي، الشارع، رقم الحوش..." class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">طريقة الاستلام:</label>
+                        <select id="deliveryType" onchange="updateCartUI()" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            <option value="pickup">استلام من المحل (مجاناً)</option>
+                            <option value="delivery">توصيل (رسوم 10 ريال)</option>
+                            <option value="add_to_previous">إضافة على الطلب السابق</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold mb-2 text-gray-300">المنتجات المطلوبة:</h4>
+                    <div id="cartItemsContainer" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-800 bg-[#222] sticky bottom-0">
+                <div class="flex justify-between text-sm mb-2 text-gray-300">
+                    <span>مجموع المنتجات:</span>
+                    <span id="productsTotal">0 ريال</span>
+                </div>
+                <div class="flex justify-between text-sm mb-3 text-gray-300">
+                    <span>رسوم التوصيل:</span>
+                    <span id="deliveryFee">0 ريال</span>
+                </div>
+                <div class="flex justify-between text-lg font-bold mb-4 border-t border-gray-700 pt-2">
+                    <span>الإجمالي الكلي:</span>
+                    <span id="cartTotalPrice" class="theme-accent">0 ريال</span>
+                </div>
+                <button onclick="sendToWhatsApp()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-lg shadow-lg transition">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i> تأكيد وإرسال الطلب للواتساب
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* 
+          =================================================================
+          مكان تعديل مسارات وصيغ الصور (تستطيع تغيير .jpg إلى .jpeg بكل سهولة):
+          =================================================================
+        */
+        const products = [
+            // 1. باشكا ايطالي
+            { id: 1, name: "باشكا ايطالي", category: "meals", type: "food", calories: "750 / 900", img: "img/باشكا ايطالي.jpeg", priceNoCheese: 18, priceCheese: 20 },
+            
+            // 2. شاورما وسط
+            { id: 2, name: "شاورما وسط", category: "meals", type: "food", calories: "360 / 460", img: "img/شاورما وسط.jpeg", priceNoCheese: 6, priceCheese: 7 },
+            
+            // 3. شاورما جامبو
+            { id: 3, name: "شاورما جامبو", category: "meals", type: "food", calories: "700 / 800", img: "img/شاورما جامبو.jpeg", priceNoCheese: 9, priceCheese: 10 },
+            
+            // 4. شاورما كبير
+            { id: 4, name: "شاورما كبير", category: "meals", type: "food", calories: "520 / 620", img: "img/شاورما كبير.jpeg", priceNoCheese: 9, priceCheese: 10 },
+            
+            // 5. عربي وسط
+            { id: 5, name: "عربي وسط", category: "meals", type: "food", calories: "780 / 900", img: "img/عربي وسط.jpeg", priceNoCheese: 14, priceCheese: 16 },
+            
+            // 6. عربي كبير
+            { id: 6, name: "عربي كبير", category: "meals", type: "food", calories: "1000 / 1150", img: "img/عربي كبير.jpeg", priceNoCheese: 18, priceCheese: 20 },
+            
+            // 7. بطاطس صغير
+            { id: 7, name: "بطاطس صغير", category: "fries", type: "food", calories: "280 / 380", img: "img/بطاطس صغير.jpeg", priceNoCheese: 5, priceCheese: 8 },
+            
+            // 8. صحن بطاطس كبير
+            { id: 8, name: "صحن بطاطس كبير", category: "fries", type: "food", calories: "550 / 750", img: "img/صحن بطاطس كبير.jpeg", priceNoCheese: 8, priceCheese: 11 },
+            
+            // 9. كولا
+            { id: 9, name: "كولا", category: "drinks", type: "drink", calories: "-", img: "img/كولا.jpeg", price: 3 },
+            
+            // 10. كولا دايت
+            { id: 10, name: "كولا دايت", category: "drinks", type: "drink", calories: "-", img: "img/كولا دايت.jpeg", price: 3 },
+            
+            // 11. كولا بلاستيك
+            { id: 11, name: "كولا بلاستيك", category: "drinks", type: "drink", calories: "-", img: "img/كولا بلاستيك.jpeg", price: 3 },
+            
+            // 12. كولا قزاز
+            { id: 12, name: "كولا قزاز", category: "drinks", type: "drink", calories: "-", img: "img/كولا قزاز.jpeg", price: 2.5 },
+            
+            // 13. سبرايت
+            { id: 13, name: "سبرايت", category: "drinks", type: "drink", calories: "-", img: "img/سبرايت.jpeg", price: 3 },
+            
+            // 14. فانتا برتقال
+            { id: 14, name: "فانتا برتقال", category: "drinks", type: "drink", calories: "-", img: "img/فانتا برتقال.jpeg", price: 3 },
+            
+            // 15. حمضيات
+            { id: 15, name: "حمضيات", category: "drinks", type: "drink", calories: "-", img: "img/حمضيات.jpeg", price: 3 },
+            
+            // 16. فانتا فراولة
+            { id: 16, name: "فانتا فراولة", category: "drinks", type: "drink", calories: "-", img: "img/فانتا فراولة.jpeg", price: 3 }
+        ];
+
+        let selectedBranchName = "";
+        let selectedBranchPhone = "";
+        let cart = [];
+        let currentFilter = 'all';
+
+        function selectBranch(name, phone) {
+            selectedBranchName = name;
+            selectedBranchPhone = phone;
+            document.getElementById('currentBranchDisplay').innerText = `الفرع: ${name}`;
+            document.getElementById('branchModal').classList.add('hidden');
+        }
+
+        function filterCategory(category, btn) {
+            currentFilter = category;
+            document.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.remove('theme-bg', 'text-white', 'shadow');
+                b.classList.add('bg-[#242424]', 'text-gray-300');
+            });
+            btn.classList.remove('bg-[#242424]', 'text-gray-300');
+            btn.classList.add('theme-bg', 'text-white', 'shadow');
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const filtered = currentFilter === 'all' ? products : products.filter(p => p.category === currentFilter);
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="relative h-48 bg-gray-900 flex items-center justify-center p-2">
+                            <img src="${encodeURI(p.img)}" alt="${p.name}" class="max-h-full max-w-full object-contain rounded-lg" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=${encodeURIComponent(p.name)}';">
+                            <span class="absolute top-2 right-2 neon-badge text-xs px-2 py-1 rounded-md font-bold">${p.calories !== '-' ? p.calories + ' سعرة' : 'مشروب'}</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold mb-3 text-center text-white">${p.name}</h3>
+                            
+                            ${p.type === 'food' ? `
+                            <div class="space-y-2 mb-4 bg-[#242424] p-3 rounded-xl border border-gray-700">
+                                <label class="flex items-center justify-between cursor-pointer p-1.5 hover:bg-[#1e1e1e] rounded-lg transition">
+                                    <span class="text-sm text-gray-300">بدون جبنة</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-bold text-gray-300">${p.priceNoCheese} ريال</span>
+                                        <input type="radio" name="cheese-${p.id}" value="no" checked>
+                                    </div>
+                                </label>
+                                <label class="flex items-center justify-between cursor-pointer p-1.5 hover:bg-[#1e1e1e] rounded-lg transition">
+                                    <span class="text-sm lavender-text font-medium">بالجبنة</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-bold theme-accent">${p.priceCheese} ريال</span>
+                                        <input type="radio" name="cheese-${p.id}" value="yes">
+                                    </div>
+                                </label>
+                            </div>
+                            ` : `
+                            <div class="text-center theme-accent font-bold mb-4 text-base bg-[#242424] py-2 rounded-xl border border-gray-700">${p.price} ريال</div>
+                            `}
+
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-sm text-gray-400">الكمية:</span>
+                                <div class="flex items-center gap-2 bg-[#242424] px-2 py-1 rounded-xl border border-gray-700">
+                                    <button onclick="changeQty(${p.id}, -1)" class="text-gray-300 hover:text-white px-2 font-bold">-</button>
+                                    <span id="qty-${p.id}" class="font-bold w-6 text-center">1</span>
+                                    <button onclick="changeQty(${p.id}, 1)" class="text-gray-300 hover:text-white px-2 font-bold">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0">
+                        <button onclick="addToCart(${p.id})" class="w-full theme-bg hover:opacity-90 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow">
+                            <i class="fa-solid fa-cart-plus"></i> أضف للسلة
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function changeQty(id, delta) {
+            const qtyElem = document.getElementById(`qty-${id}`);
+            let qty = parseInt(qtyElem.innerText) + delta;
+            if (qty < 1) qty = 1;
+            qtyElem.innerText = qty;
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const qty = parseInt(document.getElementById(`qty-${productId}`).innerText);
+            
+            let price, typeText, uniqueKey;
+
+            if (product.type === 'food') {
+                const cheeseOption = document.querySelector(`input[name="cheese-${product.id}"]:checked`).value;
+                const isCheese = cheeseOption === 'yes';
+                price = isCheese ? product.priceCheese : product.priceNoCheese;
+                typeText = isCheese ? "بالجبنة" : "بدون جبنة";
+                uniqueKey = `${product.id}-${isCheese}`;
+            } else {
+                price = product.price;
+                typeText = "مشروب";
+                uniqueKey = `${product.id}-drink`;
+            }
+
+            const existingIndex = cart.findIndex(item => item.uniqueKey === uniqueKey);
+            if (existingIndex > -1) {
+                cart[existingIndex].qty += qty;
+            } else {
+                cart.push({ uniqueKey, name: product.name, price, typeText, qty });
+            }
+
+            updateCartUI();
+            document.getElementById(`qty-${productId}`).innerText = 1;
+        }
+
+        function updateCartUI() {
+            const countElem = document.getElementById('cartCount');
+            const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+            countElem.innerText = totalCount;
+
+            const container = document.getElementById('cartItemsContainer');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 py-4">السلة فارغة حالياً</p>`;
+                document.getElementById('productsTotal').innerText = '0 ريال';
+                document.getElementById('deliveryFee').innerText = '0 ريال';
+                document.getElementById('cartTotalPrice').innerText = '0 ريال';
+                return;
+            }
+
+            let productsTotal = 0;
+            container.innerHTML = cart.map((item, index) => {
+                let itemTotal = item.price * item.qty;
+                productsTotal += itemTotal;
+                return `
+                    <div class="bg-[#242424] p-3 rounded-xl flex justify-between items-center border border-gray-700">
+                        <div>
+                            <h4 class="font-bold text-sm">${item.name}</h4>
+                            <span class="text-xs text-gray-400">${item.typeText} | ${item.price} ر.س</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold bg-[#1a1a1a] px-2.5 py-1 rounded-lg text-xs">×${item.qty}</span>
+                            <span class="theme-accent font-bold text-sm">${itemTotal} ر.س</span>
+                            <button onclick="removeFromCart(${index})" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const deliveryType = document.getElementById('deliveryType').value;
+            let deliveryFee = deliveryType === 'delivery' ? 10 : 0;
+            let grandTotal = productsTotal + deliveryFee;
+
+            document.getElementById('productsTotal').innerText = `${productsTotal} ريال`;
+            document.getElementById('deliveryFee').innerText = `${deliveryFee} ريال`;
+            document.getElementById('cartTotalPrice').innerText = `${grandTotal} ريال`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function openCart() { document.getElementById('cartModal').classList.remove('hidden'); }
+        function closeCart() { document.getElementById('cartModal').classList.add('hidden'); }
+
+        function sendToWhatsApp() {
+            if (cart.length === 0) { alert("السلة فارغة."); return; }
+            if (!selectedBranchName) { alert("يرجى اختيار الفرع أولاً."); document.getElementById('branchModal').classList.remove('hidden'); return; }
+
+            const clientName = document.getElementById('clientName').value.trim();
+            const clientPhone = document.getElementById('clientPhone').value.trim();
+            const clientAddress = document.getElementById('clientAddress').value.trim();
+            const deliveryTypeVal = document.getElementById('deliveryType').value;
+
+            if (!clientName || !clientPhone || !clientAddress) {
+                alert("يرجى تعبئة جميع بيانات العميل (الاسم، الجوال، العنوان).");
+                return;
+            }
+
+            let deliveryText = "استلام من المحل";
+            let deliveryFee = 0;
+            if (deliveryTypeVal === 'delivery') {
+                deliveryText = "توصيل (رسوم 10 ريال)";
+                deliveryFee = 10;
+            } else if (deliveryTypeVal === 'add_to_previous') {
+                deliveryText = "إضافة على الطلب السابق";
+            }
+
+            let message = `*طلب جديد عبر الموقع الإلكتروني*%0A`;
+            message += `📍 *الفرع:* ${selectedBranchName}%0A`;
+            message += `-----------------------------------%0A`;
+            message += `👤 *الاسم:* ${clientName}%0A`;
+            message += `📞 *الجوال:* ${clientPhone}%0A`;
+            message += `🏠 *العنوان:* ${clientAddress}%0A`;
+            message += `🛵 *طريقة الاستلام:* ${deliveryText}%0A`;
+            message += `-----------------------------------%0A`;
+            message += `🛒 *المنتجات المطلوبة:*%0A`;
+
+            let productsTotal = 0;
+            cart.forEach((item, i) => {
+                let sub = item.price * item.qty;
+                productsTotal += sub;
+                message += `${i + 1}. *${item.name}* (${item.typeText}) - الكمية: ${item.qty} - السعر: ${sub} ر.س%0A`;
+            });
+
+            let grandTotal = productsTotal + deliveryFee;
+            message += `-----------------------------------%0A`;
+            message += `📦 مجموع المنتجات: ${productsTotal} ر.س%0A`;
+            if (deliveryFee > 0) message += `🚚 رسوم التوصيل: ${deliveryFee} ر.س%0A`;
+            message += `💰 *الإجمالي الكلي:* ${grandTotal} ر.س%0A`;
+            message += `يرجى تأكيد الطلب. شكراً لكم!`;
+
+            let phone = selectedBranchPhone.replace(/\s+/g, '');
+            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+        }
+
+        window.onload = renderProducts;
+    </script>
+</body>
+</html>
