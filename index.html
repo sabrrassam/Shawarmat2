@@ -20,6 +20,10 @@
     </style>
 </head>
 <body class="bg-[#121212] text-white min-h-screen flex flex-col">
+    <div id="validationToast" role="alert" aria-live="assertive" class="fixed bottom-5 left-1/2 z-[100] hidden -translate-x-1/2 rounded-xl border border-red-500 bg-[#242424] px-5 py-3 text-sm font-bold text-white shadow-2xl transition-opacity">
+        <i class="fa-solid fa-circle-exclamation ml-2 text-red-400"></i>
+        <span id="validationToastMessage"></span>
+    </div>
 
     <!-- نافذة اختيار الفرع -->
     <div id="branchModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -101,15 +105,15 @@
                     <h4 class="text-sm font-bold lavender-text"><i class="fa-solid fa-user"></i> معلومات العميل والوصول</h4>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">اسم العميل:</label>
-                        <input type="text" id="clientName" placeholder="أدخل اسمك الكريم" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                        <input type="text" id="clientName" required aria-required="true" placeholder="أدخل اسمك الكريم" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">رقم الجوال:</label>
-                        <input type="tel" id="clientPhone" placeholder="05xxxxxxxx" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                        <input type="tel" id="clientPhone" required aria-required="true" placeholder="05xxxxxxxx" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">العنوان بالتفصيل:</label>
-                        <input type="text" id="clientAddress" placeholder="الحي، الشارع، رقم الحوش..." class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                        <input type="text" id="clientAddress" required aria-required="true" placeholder="الحي، الشارع، رقم الحوش..." class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">طريقة الاستلام:</label>
@@ -212,6 +216,7 @@
         const exclusionChoices = ["بدون بطاطس", "بدون كوكتيل", "بدون ثوم", "بدون كتشب", "بدون شطة"];
         const productSelections = {};
         let currentPreparationProductId = null;
+        let validationToastTimer;
 
         function getProductSelection(productId) {
             if (!productSelections[productId]) {
@@ -496,6 +501,17 @@
             updateCartUI();
         }
 
+        function showValidationToast(message) {
+            const toast = document.getElementById('validationToast');
+            document.getElementById('validationToastMessage').innerText = message;
+            toast.classList.remove('hidden');
+
+            clearTimeout(validationToastTimer);
+            validationToastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
         function openCart() { document.getElementById('cartModal').classList.remove('hidden'); }
         function closeCart() { document.getElementById('cartModal').classList.add('hidden'); }
 
@@ -508,8 +524,15 @@
             const clientAddress = document.getElementById('clientAddress').value.trim();
             const deliveryTypeVal = document.getElementById('deliveryType').value;
 
-            if (!clientName || !clientPhone || !clientAddress) {
-                alert("يرجى تعبئة جميع بيانات العميل (الاسم، الجوال، العنوان).");
+            const requiredFields = [
+                { value: clientName, input: document.getElementById('clientName'), message: 'حقل الاسم فارغ' },
+                { value: clientPhone, input: document.getElementById('clientPhone'), message: 'حقل رقم الجوال فارغ' },
+                { value: clientAddress, input: document.getElementById('clientAddress'), message: 'حقل العنوان فارغ' }
+            ];
+            const emptyField = requiredFields.find(field => !field.value);
+            if (emptyField) {
+                showValidationToast(emptyField.message);
+                emptyField.input.focus();
                 return;
             }
 
