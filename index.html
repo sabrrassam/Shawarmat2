@@ -104,24 +104,30 @@
                 <div class="bg-[#242424] p-4 rounded-xl space-y-3 border border-gray-700">
                     <h4 class="text-sm font-bold lavender-text"><i class="fa-solid fa-user"></i> معلومات العميل والوصول</h4>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">اسم العميل:</label>
-                        <input type="text" id="clientName" required aria-required="true" placeholder="أدخل اسمك الكريم" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">رقم الجوال:</label>
-                        <input type="tel" id="clientPhone" required aria-required="true" placeholder="05xxxxxxxx" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">العنوان بالتفصيل:</label>
-                        <input type="text" id="clientAddress" required aria-required="true" placeholder="الحي، الشارع، رقم الحوش..." class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                    </div>
-                    <div>
                         <label class="block text-xs text-gray-400 mb-1">طريقة الاستلام:</label>
-                        <select id="deliveryType" onchange="updateCartUI()" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                            <option value="pickup">استلام من المحل (مجاناً)</option>
-                            <option value="delivery">توصيل (رسوم 10 ريال)</option>
+                        <select id="deliveryType" onchange="updatePickupFields()" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            <option value="pickup_personal">استلام من المحل (شخصي)</option>
+                            <option value="pickup_car">استلام من موقف المطعم (بالسيارة)</option>
                             <option value="add_to_previous">إضافة على الطلب السابق</option>
                         </select>
+                    </div>
+                    <div id="personalPickupFields" class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">اسم العميل:</label>
+                            <input type="text" id="clientName" aria-required="true" placeholder="أدخل اسمك الكريم" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">رقم الجوال:</label>
+                            <input type="tel" id="clientPhone" aria-required="true" placeholder="05xxxxxxxx" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                        </div>
+                    </div>
+                    <div id="carPickupFields" class="hidden">
+                        <label class="block text-xs text-gray-400 mb-1">بيانات السيارة:</label>
+                        <input type="text" id="carDetails" aria-required="true" placeholder="نوع السيارة، اللون، ورقم اللوحة" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label for="orderNotes" class="block text-xs text-gray-400 mb-1">ملاحظات الطلب (اختياري):</label>
+                        <textarea id="orderNotes" rows="3" placeholder="اكتب أي ملاحظة على الطلب، أو اترك الحقل فارغاً" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 resize-y"></textarea>
                     </div>
                 </div>
 
@@ -135,10 +141,6 @@
                 <div class="flex justify-between text-sm mb-2 text-gray-300">
                     <span>مجموع المنتجات:</span>
                     <span id="productsTotal">0 ريال</span>
-                </div>
-                <div class="flex justify-between text-sm mb-3 text-gray-300">
-                    <span>رسوم التوصيل:</span>
-                    <span id="deliveryFee">0 ريال</span>
                 </div>
                 <div class="flex justify-between text-lg font-bold mb-4 border-t border-gray-700 pt-2">
                     <span>الإجمالي الكلي:</span>
@@ -463,7 +465,6 @@
             if (cart.length === 0) {
                 container.innerHTML = `<p class="text-center text-gray-500 py-4">السلة فارغة حالياً</p>`;
                 document.getElementById('productsTotal').innerText = '0 ريال';
-                document.getElementById('deliveryFee').innerText = '0 ريال';
                 document.getElementById('cartTotalPrice').innerText = '0 ريال';
                 return;
             }
@@ -487,13 +488,8 @@
                 `;
             }).join('');
 
-            const deliveryType = document.getElementById('deliveryType').value;
-            let deliveryFee = deliveryType === 'delivery' ? 10 : 0;
-            let grandTotal = productsTotal + deliveryFee;
-
             document.getElementById('productsTotal').innerText = `${productsTotal} ريال`;
-            document.getElementById('deliveryFee').innerText = `${deliveryFee} ريال`;
-            document.getElementById('cartTotalPrice').innerText = `${grandTotal} ريال`;
+            document.getElementById('cartTotalPrice').innerText = `${productsTotal} ريال`;
         }
 
         function removeFromCart(index) {
@@ -512,6 +508,20 @@
             }, 3000);
         }
 
+        function updatePickupFields() {
+            const pickupType = document.getElementById('deliveryType').value;
+            const personalFields = document.getElementById('personalPickupFields');
+            const carFields = document.getElementById('carPickupFields');
+            const isPersonalPickup = pickupType === 'pickup_personal';
+            const isCarPickup = pickupType === 'pickup_car';
+
+            personalFields.classList.toggle('hidden', !isPersonalPickup);
+            carFields.classList.toggle('hidden', !isCarPickup);
+            document.getElementById('clientName').setAttribute('aria-required', String(isPersonalPickup));
+            document.getElementById('clientPhone').setAttribute('aria-required', String(isPersonalPickup));
+            document.getElementById('carDetails').setAttribute('aria-required', String(isCarPickup));
+        }
+
         function openCart() { document.getElementById('cartModal').classList.remove('hidden'); }
         function closeCart() { document.getElementById('cartModal').classList.add('hidden'); }
 
@@ -519,16 +529,17 @@
             if (cart.length === 0) { alert("السلة فارغة."); return; }
             if (!selectedBranchName) { alert("يرجى اختيار الفرع أولاً."); document.getElementById('branchModal').classList.remove('hidden'); return; }
 
-            const clientName = document.getElementById('clientName').value.trim();
-            const clientPhone = document.getElementById('clientPhone').value.trim();
-            const clientAddress = document.getElementById('clientAddress').value.trim();
+            const orderNotes = document.getElementById('orderNotes').value.trim();
             const deliveryTypeVal = document.getElementById('deliveryType').value;
 
-            const requiredFields = [
-                { value: clientName, input: document.getElementById('clientName'), message: 'حقل الاسم فارغ' },
-                { value: clientPhone, input: document.getElementById('clientPhone'), message: 'حقل رقم الجوال فارغ' },
-                { value: clientAddress, input: document.getElementById('clientAddress'), message: 'حقل العنوان فارغ' }
-            ];
+            const requiredFields = deliveryTypeVal === 'pickup_personal'
+                ? [
+                    { value: document.getElementById('clientName').value.trim(), input: document.getElementById('clientName'), message: 'حقل الاسم فارغ' },
+                    { value: document.getElementById('clientPhone').value.trim(), input: document.getElementById('clientPhone'), message: 'حقل رقم الجوال فارغ' }
+                ]
+                : deliveryTypeVal === 'pickup_car'
+                    ? [{ value: document.getElementById('carDetails').value.trim(), input: document.getElementById('carDetails'), message: 'حقل بيانات السيارة فارغ' }]
+                    : [];
             const emptyField = requiredFields.find(field => !field.value);
             if (emptyField) {
                 showValidationToast(emptyField.message);
@@ -536,22 +547,23 @@
                 return;
             }
 
-            let deliveryText = "استلام من المحل";
-            let deliveryFee = 0;
-            if (deliveryTypeVal === 'delivery') {
-                deliveryText = "توصيل (رسوم 10 ريال)";
-                deliveryFee = 10;
-            } else if (deliveryTypeVal === 'add_to_previous') {
-                deliveryText = "إضافة على الطلب السابق";
-            }
+            const deliveryText = {
+                pickup_personal: "استلام من المحل (شخصي)",
+                pickup_car: "استلام من موقف المطعم (بالسيارة)",
+                add_to_previous: "إضافة على الطلب السابق"
+            }[deliveryTypeVal];
 
             let message = `*طلب جديد عبر الموقع الإلكتروني*%0A`;
             message += `📍 *الفرع:* ${selectedBranchName}%0A`;
             message += `-----------------------------------%0A`;
-            message += `👤 *الاسم:* ${clientName}%0A`;
-            message += `📞 *الجوال:* ${clientPhone}%0A`;
-            message += `🏠 *العنوان:* ${clientAddress}%0A`;
             message += `🛵 *طريقة الاستلام:* ${deliveryText}%0A`;
+            if (deliveryTypeVal === 'pickup_personal') {
+                message += `👤 *الاسم:* ${encodeURIComponent(document.getElementById('clientName').value.trim())}%0A`;
+                message += `📞 *الجوال:* ${encodeURIComponent(document.getElementById('clientPhone').value.trim())}%0A`;
+            } else if (deliveryTypeVal === 'pickup_car') {
+                message += `🚗 *بيانات السيارة:* ${encodeURIComponent(document.getElementById('carDetails').value.trim())}%0A`;
+            }
+            if (orderNotes) message += `📝 *ملاحظات الطلب:* ${encodeURIComponent(orderNotes)}%0A`;
             message += `-----------------------------------%0A`;
             message += `🛒 *المنتجات المطلوبة:*%0A`;
 
@@ -562,11 +574,9 @@
                 message += `${i + 1}. *${item.name}*${item.typeText ? ` (${item.typeText})` : ''} - الكمية: ${item.qty} - السعر: ${sub} ر.س%0A`;
             });
 
-            let grandTotal = productsTotal + deliveryFee;
             message += `-----------------------------------%0A`;
             message += `📦 مجموع المنتجات: ${productsTotal} ر.س%0A`;
-            if (deliveryFee > 0) message += `🚚 رسوم التوصيل: ${deliveryFee} ر.س%0A`;
-            message += `💰 *الإجمالي الكلي:* ${grandTotal} ر.س%0A`;
+            message += `💰 *الإجمالي الكلي:* ${productsTotal} ر.س%0A`;
             message += `يرجى تأكيد الطلب. شكراً لكم!`;
 
             let phone = selectedBranchPhone.replace(/\s+/g, '');
