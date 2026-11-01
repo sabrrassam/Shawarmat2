@@ -22,7 +22,7 @@
 <body class="bg-[#121212] text-white min-h-screen flex flex-col">
 
     <!-- نافذة اختيار الفرع -->
-    <div id="branchModal" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+    <div id="branchModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="bg-[#1e1e1e] border-2 theme-border rounded-2xl max-w-md w-full p-6 text-center shadow-2xl">
             <h2 class="text-2xl font-black theme-accent mb-2">شركة شاورمات</h2>
             <p class="text-gray-300 mb-6 text-sm">يرجى اختيار الفرع الأقرب إليك للبدء:</p>
@@ -38,20 +38,20 @@
     </div>
 
     <!-- الشريط العلوي الرئيسي -->
-    <header class="bg-[#1a1a1a] border-b border-gray-800 fixed top-0 left-0 right-0 z-40 shadow-md">
+    <header class="bg-[#1a1a1a] border-b border-gray-800 sticky top-0 z-45 shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="text-center md:text-right">
                 <h1 class="text-xl font-black theme-accent tracking-wider">shawarmat.co</h1>
                 <span id="currentBranchDisplay" class="text-xs bg-red-950 text-red-300 px-2 py-0.5 rounded-full border border-red-800/50">الفرع: لم يتم التحديد</span>
             </div>
-            <button onclick="toggleCart()" class="relative theme-bg hover:opacity-90 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition shadow">
+            <button onclick="openCart()" class="relative theme-bg hover:opacity-90 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition shadow">
                 <i class="fa-solid fa-cart-shopping"></i> السلة
                 <span id="cartCount" class="absolute -top-2 -right-2 neon-badge text-xs w-6 h-6 rounded-full flex items-center justify-center font-black shadow">0</span>
             </button>
         </div>
 
         <!-- شريط الأقسام الدائري الثابت -->
-        <div class="bg-[#161616] border-t border-gray-800 py-2.5 px-4 backdrop-blur-md bg-opacity-95">
+        <div class="bg-[#161616] border-t border-gray-800 py-2.5 px-4 sticky top-[57px] z-40 backdrop-blur-md bg-opacity-95">
             <div class="max-w-7xl mx-auto flex gap-3 overflow-x-auto no-scrollbar justify-start md:justify-center">
                 <button onclick="filterCategory('all', this)" class="category-btn flex flex-col items-center flex-shrink-0 theme-bg text-white px-4 py-1.5 rounded-full text-xs font-bold transition shadow">
                     <i class="fa-solid fa-border-all mb-0.5"></i> الكل
@@ -70,35 +70,30 @@
     </header>
 
     <!-- محتوى المنيو -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full pt-[130px]">
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
         <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </main>
 
-    <!-- قسم الملاحظات ومسببات الحساسية (مطابق للمنيو الأصلي) -->
-    <section class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-800 mt-8">
-        <div class="bg-[#1a1a1a] p-5 rounded-2xl border border-gray-800 shadow-lg">
-            <h4 class="text-red-500 font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> ملاحظة:</h4>
-            <p class="text-gray-300 text-sm leading-relaxed">يحتاج البالغون الى 2000 سعرات حرارية في المتوسط وقد تختلف الاحتياجات الفردية من شخص الى آخر[cite: 9].</p>
+    <!-- نافذة ملاحظات التحضير -->
+    <div id="preparationModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4" onclick="if (event.target === this) closePreparationModal()">
+        <div class="bg-[#1e1e1e] border border-gray-700 rounded-2xl max-w-md w-full max-h-[85vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                <h3 id="preparationModalTitle" class="text-lg font-bold theme-accent">ملاحظات التحضير</h3>
+                <button onclick="closePreparationModal()" class="text-gray-400 hover:text-white text-xl" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="preparationModalContent" class="p-4 space-y-4 overflow-y-auto"></div>
+            <div class="p-4 border-t border-gray-800">
+                <button onclick="savePreparationOptions()" class="w-full theme-bg hover:opacity-90 text-white font-bold py-2.5 rounded-xl transition">حفظ الملاحظات</button>
+            </div>
         </div>
-        <div class="bg-[#1a1a1a] p-5 rounded-2xl border border-gray-800 shadow-lg">
-            <h4 class="text-red-500 font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-allergies"></i> مسببات الحساسية:</h4>
-            <p class="text-gray-300 text-sm leading-relaxed">القمح، الشعير، الشوفان، الأسماك، منتجات الاسماك، المكسرات، منتجاتها، الحليب ومنتجاته، البيض ومنتجاتها، بذور السمسم ومنتجاته، الطماطم[cite: 9].</p>
-        </div>
-    </section>
+    </div>
 
-    <!-- حقوق الطبع والنشر -->
-    <footer class="bg-[#161616] border-t border-gray-800 py-6 text-center text-sm text-gray-400">
-        <p>© 2026 شركة شاورمات (shawarmat.co). جميع الحقوق محفوظة.</p>
-    </footer>
-
-    <!-- نافذة السلة وبيانات العميل (معزولة تماماً في الأعلى z-index: 99999) -->
-    <div id="cartModal" class="fixed inset-0 z-[99999] bg-black/90 hidden flex justify-end">
+    <!-- نافذة السلة وبيانات العميل -->
+    <div id="cartModal" class="fixed inset-0 z-50 bg-black/80 hidden flex justify-end">
         <div class="bg-[#1a1a1a] w-full max-w-md h-full flex flex-col shadow-2xl border-r border-gray-800 overflow-y-auto">
-            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222] sticky top-0 z-20">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222] sticky top-0 z-10">
                 <h3 class="text-lg font-bold theme-accent"><i class="fa-solid fa-basket-shopping"></i> سلة الطلبات وبيانات العميل</h3>
-                <button onclick="closeCart()" class="bg-red-600 hover:bg-red-700 text-white w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold transition shadow">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <button onclick="closeCart()" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div class="p-4 space-y-4 flex-grow">
@@ -132,7 +127,7 @@
                 </div>
             </div>
 
-            <div class="p-4 border-t border-gray-800 bg-[#222] sticky bottom-0 z-20">
+            <div class="p-4 border-t border-gray-800 bg-[#222] sticky bottom-0">
                 <div class="flex justify-between text-sm mb-2 text-gray-300">
                     <span>مجموع المنتجات:</span>
                     <span id="productsTotal">0 ريال</span>
@@ -153,29 +148,82 @@
     </div>
 
     <script>
+        /* 
+          =================================================================
+          مكان تعديل مسارات وصيغ الصور (تستطيع تغيير .jpg إلى .jpeg بكل سهولة):
+          =================================================================
+        */
         const products = [
-            { id: 1, name: "باشكا ايطالي", category: "meals", type: "food", calories: "750 / 900", img: "img/باشكا ايطالي.jpeg", priceNoCheese: 18, priceCheese: 20 },
-            { id: 2, name: "شاورما وسط", category: "meals", type: "food", calories: "360 / 460", img: "img/شاورما وسط.jpeg", priceNoCheese: 6, priceCheese: 7 },
-            { id: 3, name: "شاورما جامبو", category: "meals", type: "food", calories: "700 / 800", img: "img/شاورما جامبو.jpeg", priceNoCheese: 9, priceCheese: 10 },
-            { id: 4, name: "شاورما كبير", category: "meals", type: "food", calories: "520 / 620", img: "img/شاورما كبير.jpeg", priceNoCheese: 9, priceCheese: 10 },
-            { id: 5, name: "عربي وسط", category: "meals", type: "food", calories: "780 / 900", img: "img/عربي وسط.jpeg", priceNoCheese: 14, priceCheese: 16 },
-            { id: 6, name: "عربي كبير", category: "meals", type: "food", calories: "1000 / 1150", img: "img/عربي كبير.jpeg", priceNoCheese: 18, priceCheese: 20 },
-            { id: 7, name: "بطاطس صغير", category: "fries", type: "food", calories: "280 / 380", img: "img/بطاطس صغير.jpeg", priceNoCheese: 5, priceCheese: 8 },
-            { id: 8, name: "صحن بطاطس كبير", category: "fries", type: "food", calories: "550 / 750", img: "img/صحن بطاطس كبير.jpeg", priceNoCheese: 8, priceCheese: 11 },
-            { id: 9, name: "كولا", category: "drinks", type: "drink", calories: "-", img: "img/كولا.jpeg", price: 3 },
-            { id: 10, name: "كولا دايت", category: "drinks", type: "drink", calories: "-", img: "img/كولا دايت.jpeg", price: 3 },
-            { id: 11, name: "كولا بلاستيك", category: "drinks", type: "drink", calories: "-", img: "img/كولا بلاستيك.jpeg", price: 3 },
-            { id: 12, name: "كولا قزاز", category: "drinks", type: "drink", calories: "-", img: "img/كولا قزاز.jpeg", price: 2.5 },
-            { id: 13, name: "سبرايت", category: "drinks", type: "drink", calories: "-", img: "img/سبرايت.jpeg", price: 3 },
-            { id: 14, name: "فانتا برتقال", category: "drinks", type: "drink", calories: "-", img: "img/فانتا برتقال.jpeg", price: 3 },
-            { id: 15, name: "حمضيات", category: "drinks", type: "drink", calories: "-", img: "img/حمضيات.jpeg", price: 3 },
-            { id: 16, name: "فانتا فراولة", category: "drinks", type: "drink", calories: "-", img: "img/فانتا فراولة.jpeg", price: 3 }
+            // 1. باشكا ايطالي
+            { id: 1, name: "باشكا ايطالي", category: "meals", type: "food", addOnType: "meal", calories: "750 / 900", img: "img/باشكا ايطالي.jpeg", priceNoCheese: 18, priceCheese: 20, available: true },
+            
+            // 2. شاورما وسط
+            { id: 2, name: "شاورما وسط", category: "meals", type: "food", addOnType: "sandwich", calories: "360 / 460", img: "img/شاورما وسط.jpeg", priceNoCheese: 6, priceCheese: 7, available: true },
+            
+            // 3. شاورما جامبو
+            { id: 3, name: "شاورما جامبو", category: "meals", type: "food", addOnType: "sandwich", calories: "700 / 800", img: "img/شاورما جامبو.jpeg", priceNoCheese: 9, priceCheese: 10, available: true },
+            
+            // 4. شاورما كبير
+            { id: 4, name: "شاورما كبير", category: "meals", type: "food", addOnType: "sandwich", calories: "520 / 620", img: "img/شاورما كبير.jpeg", priceNoCheese: 9, priceCheese: 10, available: true },
+            
+            // 5. عربي وسط
+            { id: 5, name: "عربي وسط", category: "meals", type: "food", addOnType: "meal", calories: "780 / 900", img: "img/عربي وسط.jpeg", priceNoCheese: 14, priceCheese: 16, available: true },
+            
+            // 6. عربي كبير
+            { id: 6, name: "عربي كبير", category: "meals", type: "food", addOnType: "meal", calories: "1000 / 1150", img: "img/عربي كبير.jpeg", priceNoCheese: 18, priceCheese: 20, available: true },
+            
+            // 7. بطاطس صغير
+            { id: 7, name: "بطاطس صغير", category: "fries", type: "food", calories: "280 / 380", img: "img/بطاطس صغير.jpeg", priceNoCheese: 5, priceCheese: 8, available: true },
+            
+            // 8. صحن بطاطس كبير
+            { id: 8, name: "صحن بطاطس كبير", category: "fries", type: "food", calories: "550 / 750", img: "img/صحن بطاطس كبير.jpeg", priceNoCheese: 8, priceCheese: 11, available: true },
+            
+            // 9. كولا
+            { id: 9, name: "كولا", category: "drinks", type: "drink", calories: "-", img: "img/كولا.jpeg", price: 3, available: true },
+            
+            // 10. كولا دايت
+            { id: 10, name: "كولا دايت", category: "drinks", type: "drink", calories: "-", img: "img/كولا دايت.jpeg", price: 3, available: true },
+            
+            // 11. كولا بلاستيك
+            { id: 11, name: "كولا بلاستيك", category: "drinks", type: "drink", calories: "-", img: "img/كولا بلاستيك.jpeg", price: 3, available: true },
+            
+            // 12. كولا قزاز
+            { id: 12, name: "كولا قزاز", category: "drinks", type: "drink", calories: "-", img: "img/كولا قزاز.jpeg", price: 2.5, available: true },
+            
+            // 13. سبرايت
+            { id: 13, name: "سبرايت", category: "drinks", type: "drink", calories: "-", img: "img/سبرايت.jpeg", price: 3, available: true },
+            
+            // 14. فانتا برتقال
+            { id: 14, name: "فانتا برتقال", category: "drinks", type: "drink", calories: "-", img: "img/فانتا برتقال.jpeg", price: 3, available: true },
+            
+            // 15. حمضيات
+            { id: 15, name: "حمضيات", category: "drinks", type: "drink", calories: "-", img: "img/حمضيات.jpeg", price: 3, available: true },
+            
+            // 16. فانتا فراولة
+            { id: 16, name: "فانتا فراولة", category: "drinks", type: "drink", calories: "-", img: "img/فانتا فراولة.jpeg", price: 3, available: true }
         ];
 
         let selectedBranchName = "";
         let selectedBranchPhone = "";
         let cart = [];
         let currentFilter = 'all';
+        const preparationChoices = ["كل شي", "دجاج فقط", "دجاج وبطاطس", "دجاج خفيف", "مجمر", "اقسمه نصفين"];
+        const extraChoices = ["مخلل", "مع الثوم", "مع الكتشب", "مع الشطة العادية", "صوصات خفيفة", "شطة حار خفيف", "حراق"];
+        const exclusionChoices = ["بدون بطاطس", "بدون كوكتيل", "بدون ثوم", "بدون كتشب", "بدون شطة"];
+        const productSelections = {};
+        let currentPreparationProductId = null;
+
+        function getProductSelection(productId) {
+            if (!productSelections[productId]) {
+                productSelections[productId] = {
+                    cheese: 'no',
+                    preparation: preparationChoices[0],
+                    extras: [],
+                    exclusions: []
+                };
+            }
+            return productSelections[productId];
+        }
 
         function selectBranch(name, phone) {
             selectedBranchName = name;
@@ -203,29 +251,44 @@
                 <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between">
                     <div>
                         <div class="relative h-48 bg-gray-900 flex items-center justify-center p-2">
-                            <img src="${encodeURI(p.img)}" alt="${p.name}" class="max-h-full max-w-full object-contain rounded-lg" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=${encodeURIComponent(p.name)}';">
+                            <img src="${encodeURI(p.img)}" alt="${p.name}" class="max-h-full max-w-full object-contain rounded-lg ${p.available ? '' : 'grayscale opacity-50'}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=${encodeURIComponent(p.name)}';">
                             <span class="absolute top-2 right-2 neon-badge text-xs px-2 py-1 rounded-md font-bold">${p.calories !== '-' ? p.calories + ' سعرة' : 'مشروب'}</span>
+                            <span class="absolute top-2 left-2 ${p.available ? 'bg-green-700' : 'bg-red-700'} text-white text-xs px-2 py-1 rounded-md font-bold">${p.available ? 'متوفر' : 'غير متوفر'}</span>
                         </div>
                         <div class="p-4">
                             <h3 class="text-lg font-bold mb-3 text-center text-white">${p.name}</h3>
                             
                             ${p.type === 'food' ? `
-                            <div class="space-y-2 mb-4 bg-[#242424] p-3 rounded-xl border border-gray-700">
+                            <div class="space-y-2 mb-3 bg-[#242424] p-3 rounded-xl border border-gray-700">
                                 <label class="flex items-center justify-between cursor-pointer p-1.5 hover:bg-[#1e1e1e] rounded-lg transition">
                                     <span class="text-sm text-gray-300">بدون جبنة</span>
                                     <div class="flex items-center gap-2">
                                         <span class="text-sm font-bold text-gray-300">${p.priceNoCheese} ريال</span>
-                                        <input type="radio" name="cheese-${p.id}" value="no" checked>
+                                        <input type="radio" name="cheese-${p.id}" value="no" onchange="setCheeseOption(${p.id}, this.value)" ${getProductSelection(p.id).cheese === 'no' ? 'checked' : ''}>
                                     </div>
                                 </label>
                                 <label class="flex items-center justify-between cursor-pointer p-1.5 hover:bg-[#1e1e1e] rounded-lg transition">
                                     <span class="text-sm lavender-text font-medium">بالجبنة</span>
                                     <div class="flex items-center gap-2">
                                         <span class="text-sm font-bold theme-accent">${p.priceCheese} ريال</span>
-                                        <input type="radio" name="cheese-${p.id}" value="yes">
+                                        <input type="radio" name="cheese-${p.id}" value="yes" onchange="setCheeseOption(${p.id}, this.value)" ${getProductSelection(p.id).cheese === 'yes' ? 'checked' : ''}>
                                     </div>
                                 </label>
+                                ${p.addOnType ? `
+                                <label class="flex items-center justify-between cursor-pointer p-1.5 hover:bg-[#1e1e1e] rounded-lg transition">
+                                    <span class="text-sm lavender-text font-medium">دبل جبنة <span class="theme-accent">(+${p.addOnType === 'sandwich' ? 1 : 2} ريال)</span></span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-bold theme-accent">${p.priceCheese + (p.addOnType === 'sandwich' ? 1 : 2)} ريال</span>
+                                        <input type="radio" name="cheese-${p.id}" value="double" onchange="setCheeseOption(${p.id}, this.value)" ${getProductSelection(p.id).cheese === 'double' ? 'checked' : ''}>
+                                    </div>
+                                </label>
+                                ` : ''}
                             </div>
+                            ${p.addOnType ? `
+                            <button id="preparationButton-${p.id}" onclick="openPreparationModal(${p.id})" class="w-full mb-4 bg-[#242424] border border-gray-700 hover:border-red-500 text-sm text-gray-300 font-bold py-2 rounded-xl transition">
+                                <i class="fa-solid fa-list-check ml-1"></i> ملاحظات التحضير
+                            </button>
+                            ` : ''}
                             ` : `
                             <div class="text-center theme-accent font-bold mb-4 text-base bg-[#242424] py-2 rounded-xl border border-gray-700">${p.price} ريال</div>
                             `}
@@ -241,12 +304,103 @@
                         </div>
                     </div>
                     <div class="p-4 pt-0">
-                        <button onclick="addToCart(${p.id})" class="w-full theme-bg hover:opacity-90 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow">
-                            <i class="fa-solid fa-cart-plus"></i> أضف للسلة
+                        <button onclick="addToCart(${p.id})" ${p.available ? '' : 'disabled'} class="w-full ${p.available ? 'theme-bg hover:opacity-90' : 'bg-gray-600 cursor-not-allowed'} text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow">
+                            <i class="fa-solid ${p.available ? 'fa-cart-plus' : 'fa-ban'}"></i> ${p.available ? 'أضف للسلة' : 'غير متوفر'}
                         </button>
                     </div>
                 </div>
             `).join('');
+        }
+
+        function setCheeseOption(productId, option) {
+            getProductSelection(productId).cheese = option;
+        }
+
+        function openPreparationModal(productId) {
+            const product = products.find(item => item.id === productId);
+            if (!product || !product.addOnType) {
+                return;
+            }
+
+            currentPreparationProductId = productId;
+            const selection = getProductSelection(productId);
+            document.getElementById('preparationModalTitle').innerText = `ملاحظات التحضير - ${product.name}`;
+            document.getElementById('preparationModalContent').innerHTML = `
+                <fieldset>
+                    <legend class="text-sm font-bold text-gray-300 mb-2">الخيارات الأساسية (اختر خياراً)</legend>
+                    <div class="space-y-1">
+                        ${preparationChoices.map(choice => `
+                            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-[#242424] rounded-lg transition text-sm text-gray-300">
+                                <input type="radio" name="preparation-choice" value="${choice}" ${selection.preparation === choice ? 'checked' : ''}>
+                                <span>${choice}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend class="text-sm font-bold text-gray-300 mb-2">الصوصات والإضافات</legend>
+                    <div class="space-y-1">
+                        ${extraChoices.map(choice => `
+                            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-[#242424] rounded-lg transition text-sm text-gray-300">
+                                <input type="checkbox" name="preparation-extra" value="${choice}" class="accent-red-500 w-[18px] h-[18px] cursor-pointer" ${selection.extras.includes(choice) ? 'checked' : ''}>
+                                <span>${choice}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend class="text-sm font-bold text-gray-300 mb-2">الاستثناءات</legend>
+                    <div class="space-y-1">
+                        ${exclusionChoices.map(choice => `
+                            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-[#242424] rounded-lg transition text-sm text-gray-300">
+                                <input type="checkbox" name="preparation-exclusion" value="${choice}" class="accent-red-500 w-[18px] h-[18px] cursor-pointer" ${selection.exclusions.includes(choice) ? 'checked' : ''}>
+                                <span>${choice}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </fieldset>
+            `;
+
+            const modal = document.getElementById('preparationModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePreparationModal() {
+            const modal = document.getElementById('preparationModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentPreparationProductId = null;
+        }
+
+        function savePreparationOptions() {
+            if (currentPreparationProductId === null) {
+                return;
+            }
+
+            const selection = getProductSelection(currentPreparationProductId);
+            const preparation = document.querySelector('input[name="preparation-choice"]:checked');
+            if (!preparation) {
+                alert("يرجى اختيار أحد الخيارات الأساسية.");
+                return;
+            }
+
+            selection.preparation = preparation.value;
+            selection.extras = Array.from(document.querySelectorAll('input[name="preparation-extra"]:checked'), input => input.value);
+            selection.exclusions = Array.from(document.querySelectorAll('input[name="preparation-exclusion"]:checked'), input => input.value);
+
+            const summary = [
+                selection.preparation === preparationChoices[0] ? "" : selection.preparation,
+                ...selection.extras,
+                ...selection.exclusions
+            ].filter(Boolean);
+            const button = document.getElementById(`preparationButton-${currentPreparationProductId}`);
+            if (button) {
+                button.innerHTML = `<i class="fa-solid fa-list-check ml-1"></i> ${summary.length ? `ملاحظات التحضير (${summary.length})` : 'ملاحظات التحضير'}`;
+                button.title = summary.length ? summary.join("، ") : "لا توجد ملاحظات إضافية";
+            }
+
+            closePreparationModal();
         }
 
         function changeQty(id, delta) {
@@ -258,19 +412,29 @@
 
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
+            if (!product || !product.available) {
+                return;
+            }
             const qty = parseInt(document.getElementById(`qty-${productId}`).innerText);
             
-            let price, typeText, uniqueKey;
+            let price, typeText = "", uniqueKey;
 
             if (product.type === 'food') {
-                const cheeseOption = document.querySelector(`input[name="cheese-${product.id}"]:checked`).value;
-                const isCheese = cheeseOption === 'yes';
-                price = isCheese ? product.priceCheese : product.priceNoCheese;
-                typeText = isCheese ? "بالجبنة" : "بدون جبنة";
-                uniqueKey = `${product.id}-${isCheese}`;
+                const selection = getProductSelection(product.id);
+                const cheeseOption = selection.cheese;
+                const cheeseText = cheeseOption === 'double' ? "دبل جبنة" : cheeseOption === 'yes' ? "بالجبنة" : "بدون جبنة";
+                price = cheeseOption === 'double'
+                    ? product.priceCheese + (product.addOnType === 'sandwich' ? 1 : 2)
+                    : cheeseOption === 'yes' ? product.priceCheese : product.priceNoCheese;
+                let selectedOptions = [cheeseText];
+                if (product.addOnType) {
+                    selectedOptions.push(selection.preparation, ...selection.extras, ...selection.exclusions);
+                }
+                typeText = selectedOptions.join("، ");
+                uniqueKey = `${product.id}-${JSON.stringify([cheeseOption, selection.preparation, selection.extras, selection.exclusions])}`;
             } else {
                 price = product.price;
-                typeText = "مشروب";
+                typeText = "";
                 uniqueKey = `${product.id}-drink`;
             }
 
@@ -307,7 +471,7 @@
                     <div class="bg-[#242424] p-3 rounded-xl flex justify-between items-center border border-gray-700">
                         <div>
                             <h4 class="font-bold text-sm">${item.name}</h4>
-                            <span class="text-xs text-gray-400">${item.typeText} | ${item.price} ر.س</span>
+                            <span class="text-xs text-gray-400">${item.typeText ? `${item.typeText} | ` : ''}${item.price} ر.س</span>
                         </div>
                         <div class="flex items-center gap-3">
                             <span class="font-bold bg-[#1a1a1a] px-2.5 py-1 rounded-lg text-xs">×${item.qty}</span>
@@ -332,18 +496,8 @@
             updateCartUI();
         }
 
-        function toggleCart() {
-            const modal = document.getElementById('cartModal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-            } else {
-                modal.classList.add('hidden');
-            }
-        }
-
-        function closeCart() { 
-            document.getElementById('cartModal').classList.add('hidden'); 
-        }
+        function openCart() { document.getElementById('cartModal').classList.remove('hidden'); }
+        function closeCart() { document.getElementById('cartModal').classList.add('hidden'); }
 
         function sendToWhatsApp() {
             if (cart.length === 0) { alert("السلة فارغة."); return; }
@@ -382,7 +536,7 @@
             cart.forEach((item, i) => {
                 let sub = item.price * item.qty;
                 productsTotal += sub;
-                message += `${i + 1}. *${item.name}* (${item.typeText}) - الكمية: ${item.qty} - السعر: ${sub} ر.س%0A`;
+                message += `${i + 1}. *${item.name}*${item.typeText ? ` (${item.typeText})` : ''} - الكمية: ${item.qty} - السعر: ${sub} ر.س%0A`;
             });
 
             let grandTotal = productsTotal + deliveryFee;
