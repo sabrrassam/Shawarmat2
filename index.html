@@ -87,7 +87,7 @@
             </div>
             <div id="preparationModalContent" class="p-4 space-y-4 overflow-y-auto"></div>
             <div class="p-4 border-t border-gray-800">
-                <button onclick="savePreparationOptions()" class="w-full theme-bg hover:opacity-90 text-white font-bold py-2.5 rounded-xl transition">حفظ الملاحظات</button>
+                <button id="preparationModalSaveButton" onclick="savePreparationOptions()" class="w-full theme-bg hover:opacity-90 text-white font-bold py-2.5 rounded-xl transition">حفظ الملاحظات</button>
             </div>
         </div>
     </div>
@@ -216,6 +216,8 @@
         const preparationChoices = ["كل شي", "دجاج فقط", "دجاج وبطاطس", "دجاج خفيف", "مجمر", "اقسمه نصفين"];
         const extraChoices = ["مخلل", "مع الثوم", "مع الكتشب", "مع الشطة العادية", "صوصات خفيفة", "شطة حار خفيف", "حراق"];
         const exclusionChoices = ["بدون بطاطس", "بدون كوكتيل", "بدون ثوم", "بدون كتشب", "بدون شطة"];
+        const friesSauceChoices = ["كاتشب", "ثوم", "شطة حارة"];
+        const friesSauceLevels = ["خفيف", "متوسط", "زيادة"];
         const productSelections = {};
         let currentPreparationProductId = null;
         let validationToastTimer;
@@ -226,7 +228,8 @@
                     cheese: 'no',
                     preparation: preparationChoices[0],
                     extras: [],
-                    exclusions: []
+                    exclusions: [],
+                    friesSauces: {}
                 };
             }
             return productSelections[productId];
@@ -291,9 +294,9 @@
                                 </label>
                                 ` : ''}
                             </div>
-                            ${p.addOnType ? `
+                            ${p.addOnType || p.category === 'fries' ? `
                             <button id="preparationButton-${p.id}" onclick="openPreparationModal(${p.id})" class="w-full mb-4 bg-[#242424] border border-gray-700 hover:border-red-500 text-sm text-gray-300 font-bold py-2 rounded-xl transition">
-                                <i class="fa-solid fa-list-check ml-1"></i> ملاحظات التحضير
+                                <i class="fa-solid fa-list-check ml-1"></i> ${p.category === 'fries' ? 'إضافات البطاطس' : 'ملاحظات التحضير'}
                             </button>
                             ` : ''}
                             ` : `
@@ -323,16 +326,52 @@
             getProductSelection(productId).cheese = option;
         }
 
+        function toggleFriesSauceOptions(index, isSelected) {
+            const options = document.getElementById(`fries-sauce-levels-${index}`);
+            options.classList.toggle('hidden', !isSelected);
+            if (!isSelected) {
+                options.querySelectorAll('input[type="radio"]').forEach(input => {
+                    input.checked = false;
+                });
+            }
+        }
+
         function openPreparationModal(productId) {
             const product = products.find(item => item.id === productId);
-            if (!product || !product.addOnType) {
+            if (!product || (!product.addOnType && product.category !== 'fries')) {
                 return;
             }
 
             currentPreparationProductId = productId;
             const selection = getProductSelection(productId);
-            document.getElementById('preparationModalTitle').innerText = `ملاحظات التحضير - ${product.name}`;
-            document.getElementById('preparationModalContent').innerHTML = `
+            const isFries = product.category === 'fries';
+            document.getElementById('preparationModalTitle').innerText = isFries
+                ? `إضافات البطاطس - ${product.name}`
+                : `ملاحظات التحضير - ${product.name}`;
+            document.getElementById('preparationModalSaveButton').innerText = isFries ? 'حفظ الإضافات' : 'حفظ الملاحظات';
+            document.getElementById('preparationModalContent').innerHTML = isFries ? `
+                <fieldset>
+                    <legend class="text-sm font-bold text-gray-300 mb-2">اختر الصوصات (اختياري)</legend>
+                    <div class="space-y-3">
+                        ${friesSauceChoices.map((choice, index) => `
+                            <div class="bg-[#242424] rounded-xl p-2">
+                                <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-[#1e1e1e] rounded-lg transition text-sm text-gray-300">
+                                    <input type="checkbox" name="fries-sauce" value="${choice}" class="accent-red-500 w-[18px] h-[18px] cursor-pointer" onchange="toggleFriesSauceOptions(${index}, this.checked)" ${selection.friesSauces[choice] ? 'checked' : ''}>
+                                    <span>${choice}</span>
+                                </label>
+                                <div id="fries-sauce-levels-${index}" class="flex flex-wrap gap-4 px-2 pb-2 ${selection.friesSauces[choice] ? '' : 'hidden'}">
+                                    ${friesSauceLevels.map(level => `
+                                        <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
+                                            <input type="radio" name="fries-sauce-level-${index}" value="${level}" class="accent-red-500 w-[18px] h-[18px] cursor-pointer" ${selection.friesSauces[choice] === level ? 'checked' : ''}>
+                                            <span>${level}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </fieldset>
+            ` : `
                 <fieldset>
                     <legend class="text-sm font-bold text-gray-300 mb-2">الخيارات الأساسية (اختر خياراً)</legend>
                     <div class="space-y-1">
@@ -386,6 +425,30 @@
             }
 
             const selection = getProductSelection(currentPreparationProductId);
+            const product = products.find(item => item.id === currentPreparationProductId);
+            if (product && product.category === 'fries') {
+                const friesSauces = {};
+                const selectedSauces = document.querySelectorAll('input[name="fries-sauce"]:checked');
+                for (const sauce of selectedSauces) {
+                    const index = friesSauceChoices.indexOf(sauce.value);
+                    const level = document.querySelector(`input[name="fries-sauce-level-${index}"]:checked`);
+                    if (!level) {
+                        alert(`يرجى اختيار مستوى ${sauce.value}: خفيف أو متوسط أو زيادة.`);
+                        return;
+                    }
+                    friesSauces[sauce.value] = level.value;
+                }
+                selection.friesSauces = friesSauces;
+                const summary = Object.entries(friesSauces).map(([sauce, level]) => `${sauce} (${level})`);
+                const button = document.getElementById(`preparationButton-${currentPreparationProductId}`);
+                if (button) {
+                    button.innerHTML = `<i class="fa-solid fa-list-check ml-1"></i> ${summary.length ? `إضافات البطاطس (${summary.length})` : 'إضافات البطاطس'}`;
+                    button.title = summary.length ? summary.join("، ") : "لم يتم اختيار إضافات";
+                }
+                closePreparationModal();
+                return;
+            }
+
             const preparation = document.querySelector('input[name="preparation-choice"]:checked');
             if (!preparation) {
                 alert("يرجى اختيار أحد الخيارات الأساسية.");
@@ -437,8 +500,11 @@
                 if (product.addOnType) {
                     selectedOptions.push(selection.preparation, ...selection.extras, ...selection.exclusions);
                 }
+                if (product.category === 'fries') {
+                    selectedOptions.push(...Object.entries(selection.friesSauces).map(([sauce, level]) => `${sauce} (${level})`));
+                }
                 typeText = selectedOptions.join("، ");
-                uniqueKey = `${product.id}-${JSON.stringify([cheeseOption, selection.preparation, selection.extras, selection.exclusions])}`;
+                uniqueKey = `${product.id}-${JSON.stringify([cheeseOption, selection.preparation, selection.extras, selection.exclusions, selection.friesSauces])}`;
             } else {
                 price = product.price;
                 typeText = "";
@@ -479,8 +545,12 @@
                             <h4 class="font-bold text-sm">${item.name}</h4>
                             <span class="text-xs text-gray-400">${item.typeText ? `${item.typeText} | ` : ''}${item.price} ر.س</span>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="font-bold bg-[#1a1a1a] px-2.5 py-1 rounded-lg text-xs">×${item.qty}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1 bg-[#1a1a1a] rounded-lg px-1 py-0.5">
+                                <button onclick="changeCartQty(${index}, -1)" aria-label="تقليل كمية ${item.name}" class="text-gray-300 hover:text-white px-2 font-bold">−</button>
+                                <span class="font-bold w-5 text-center text-xs">${item.qty}</span>
+                                <button onclick="changeCartQty(${index}, 1)" aria-label="زيادة كمية ${item.name}" class="text-gray-300 hover:text-white px-2 font-bold">+</button>
+                            </div>
                             <span class="theme-accent font-bold text-sm">${itemTotal} ر.س</span>
                             <button onclick="removeFromCart(${index})" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
                         </div>
@@ -490,6 +560,16 @@
 
             document.getElementById('productsTotal').innerText = `${productsTotal} ريال`;
             document.getElementById('cartTotalPrice').innerText = `${productsTotal} ريال`;
+        }
+
+        function changeCartQty(index, delta) {
+            const item = cart[index];
+            if (!item) {
+                return;
+            }
+
+            item.qty = Math.max(1, item.qty + delta);
+            updateCartUI();
         }
 
         function removeFromCart(index) {
